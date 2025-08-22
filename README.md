@@ -1,4 +1,4 @@
-# Crossing the banks 🌱
+# Crossing the banks 
 ![](https://github.com/LiraCode/crossingTheBank/blob/master/public/images/window.png?raw=true)
 
 ![](https://img.shields.io/github/stars/LiraCode/crossingTheBank) ![](https://img.shields.io/github/forks/LiraCode/crossingTheBank) ![](https://img.shields.io/github/tag/LiraCode/crossingTheBank) ![GitHub Release](https://img.shields.io/github/v/release/LiraCode/crossingTheBank) ![](https://img.shields.io/github/issues/LiraCode/crossingTheBank) ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/LiraCode/crossingTheBank)
