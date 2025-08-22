@@ -374,7 +374,7 @@ def diagnosticar_consequencia(esq: set[str], dir: set[str], movimento: str) -> s
 # Execução dos movimentos conforme AFD
 # =========================
 def execute_moves(moves_str):
-    global left_bank, right_bank, boat_side, boat_x, estado_atual, complete, last_status
+    global left_bank, right_bank, boat_side, boat_x, estado_atual, complete
     complete= False
 
     # reset estado visual e do autômato
