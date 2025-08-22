@@ -9,7 +9,7 @@ pygame.init()
 
 WIDTH, HEIGHT = 1366, 768
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Crossing the bank")
+pygame.display.set_caption("Crossing the banks")
 
 # Cores
 WHITE = (255, 255, 255)
