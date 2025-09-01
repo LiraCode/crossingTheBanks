@@ -201,6 +201,31 @@ def draw_scene(boat_passengers, do_flip=True):
     hud_text = font.render(f"Estado: {estado_atual.upper()}", True, BLACK)
     screen.blit(hud_text, (20, 260))
 
+    # Desenha a fita de transição se houver uma sequência em execução
+    if hasattr(execute_moves, 'current_sequence') and execute_moves.current_sequence:
+        
+        tape_surface = pygame.Surface((300, 40), pygame.SRCALPHA)
+        tape_surface.fill((240, 240, 240, 200))
+        screen.blit(tape_surface, (840, 260))
+        label_text = font.render("Fita:", True, BLACK)
+        screen.blit(label_text, (850, 265))
+        
+        # Desenha os símbolos da fita fazendo destaque no símbolo atual e filtrando F_ da exibição
+        x_pos = 920
+        for i, symbol in enumerate(execute_moves.current_sequence):
+            if i == execute_moves.current_position:
+                color = PRIMARY
+                highlight = pygame.Surface((19, 30), pygame.SRCALPHA) if symbol == 'F_' else pygame.Surface((36, 30), pygame.SRCALPHA)
+                highlight.fill((0, 120, 255, 30))
+                screen.blit(highlight, (x_pos - 3, 262))
+            else:
+                color = GRAY_TEXT if i < execute_moves.current_position else BLACK
+
+            display_symbol = 'F' if symbol == 'F_' else symbol
+            symbol_text = font.render(display_symbol, True, color)
+            screen.blit(symbol_text, (x_pos, 265))
+            x_pos += 18 if symbol == 'F_' else 35
+
     if do_flip:
         pygame.display.flip()
 
@@ -375,7 +400,7 @@ def diagnosticar_consequencia(esq: set[str], dir: set[str], movimento: str) -> s
 # =========================
 def execute_moves(moves_str):
     global left_bank, right_bank, boat_side, boat_x, estado_atual, complete
-    complete= False
+    complete = False
 
     # reset estado visual e do autômato
     left_bank = ["F", "C", "L", "A"]
@@ -383,9 +408,14 @@ def execute_moves(moves_str):
     boat_side = "left"
     boat_x = 250
     estado_atual = ESTADO_INICIAL
+    
+    # Reseta e inicializa a sequência atual
+    execute_moves.current_sequence = []
+    execute_moves.current_position = 0
 
     try:
         symbols = parse_symbols(moves_str)
+        execute_moves.current_sequence = symbols
     except ValueError as e:
         return ("erro", f"Entrada inválida: {e}")
 
@@ -427,6 +457,9 @@ def execute_moves(moves_str):
         dest.append("F")
         if passenger != "F":
             dest.append(passenger)
+            
+        # Atualiza a posição na fita
+        execute_moves.current_position += 1
 
        
         # Atualiza estado do autômato e redesenha
@@ -443,40 +476,45 @@ def execute_moves(moves_str):
 # =========================
 # Loop principal
 # =========================
-clock = pygame.time.Clock()
-current_input = ""   # texto digitado
-last_msg = ""        # mensagem de status após executar
+def main_loop():
+    global complete, last_status, current_input, last_msg, WIDTH, HEIGHT
+    clock = pygame.time.Clock()
+    current_input = ""   # texto digitado
+    last_msg = ""        # mensagem de status após executar
 
-# Desenha assim que abre
-draw_scene([], do_flip=False)
-draw_input_bar(current_input, last_msg)
-pygame.display.flip()
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit(); sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                if current_input.strip():
-                    status, last_msg = execute_moves(current_input)
-                    complete =True
-                    current_input = ""  # pronto para nova sequência
-                    last_status = status
-                else:
-                    last_msg = "Digite uma sequência antes de pressionar Enter."
-            elif event.key == pygame.K_BACKSPACE:
-                current_input = current_input[:-1]
-            elif event.key == pygame.K_ESCAPE:
-                current_input = ""
-                last_msg = ""
-            else:
-                ch = event.unicode.upper()
-                if ch in ("F", "C", "L", "A", "_"):  # aceita apenas os símbolos permitidos
-                    current_input += ch
-                # ignora outros caracteres
-
+    # Desenha assim que abre
     draw_scene([], do_flip=False)
     draw_input_bar(current_input, last_msg)
     pygame.display.flip()
-    clock.tick(60)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    if current_input.strip():
+                        status, last_msg = execute_moves(current_input)
+                        complete =True
+                        current_input = ""  # pronto para nova sequência
+                        last_status = status
+                    else:
+                        last_msg = "Digite uma sequência antes de pressionar Enter."
+                elif event.key == pygame.K_BACKSPACE:
+                    current_input = current_input[:-1]
+                elif event.key == pygame.K_ESCAPE:
+                    current_input = ""
+                    last_msg = ""
+                else:
+                    ch = event.unicode.upper()
+                    if ch in ("F", "C", "L", "A", "_"):  # aceita apenas os símbolos permitidos
+                        current_input += ch
+                    # ignora outros caracteres
+
+        draw_scene([], do_flip=False)
+        draw_input_bar(current_input, last_msg)
+        pygame.display.flip()
+        clock.tick(60)
+
+if __name__ == "__main__":
+    main_loop()
